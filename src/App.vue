@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseToast from '@/components/base/BaseToast.vue'
+import BaseActionSheet from '@/components/base/BaseActionSheet.vue'
 </script>
 
 <template>
@@ -7,6 +9,8 @@
       <component :is="Component" :key="route.fullPath" />
     </transition>
   </router-view>
+  <BaseToast />
+  <BaseActionSheet />
 </template>
 
 <style>
