@@ -1,0 +1,110 @@
+/* ============================================================
+ * 钉钉设计系统 Token（来源 DESIGN.md · dingtalk_common 主题）
+ * 移动端基础视口：375px（与 postcss-px-to-viewport 配置一致）
+ * 此处所有 px 数值都将由 postcss 自动转换为 vw
+ * ============================================================ */
+
+:root {
+  /* ---------- Brand & Accent ---------- */
+  --color-primary: #007FFF;
+  --color-on-primary: #FFFFFF;
+  --color-secondary: #5AC8FA;
+  --color-accent: #00B042;
+
+  /* ---------- Surface & Background（浅色） ---------- */
+  --color-canvas: #FFFFFF;
+  --color-canvas-soft: #F2F2F6;
+  --color-surface: #FFFFFF;
+  --color-surface-press: #F6F6F6;
+  --color-hairline: rgba(126, 134, 142, 0.16);
+  --color-hairline-strong: rgba(126, 134, 142, 0.24);
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-overlay-hover: rgba(126, 134, 142, 0.16);
+  --color-overlay-press: rgba(126, 134, 142, 0.24);
+
+  /* ---------- Text Color ---------- */
+  --color-ink: #171A1D;
+  --color-body: rgba(23, 26, 29, 0.6);
+  --color-mute: rgba(23, 26, 29, 0.24);
+  --color-stamp: rgba(23, 26, 29, 0.04);
+  --color-link: #317EDD;
+
+  /* ---------- Semantic ---------- */
+  --color-success: #00B042;
+  --color-error: #FF5219;
+  --color-warning: #FF9200;
+
+  /* ---------- Primary Interaction ---------- */
+  --color-primary-hover: #0075EB;
+  --color-primary-press: #006AD6;
+
+  /* ---------- Typography（移动端） ---------- */
+  --font-family-base: "PingFang SC", "SF Pro Text", "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+  --font-family-mono: "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --font-size-tiny: 10px;
+  --font-size-footnote: 12px;
+  --font-size-description: 14px;
+  --font-size-subhead: 15px;
+  --font-size-body: 17px;
+  --font-size-h2: 18px;
+  --font-size-h1: 20px;
+  --font-size-large-title: 24px;
+
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.4;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* ---------- Radius ---------- */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ---------- Spacing（4pt 基础） ---------- */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
+  --space-3xl: 64px;
+
+  /* ---------- Shadow ---------- */
+  --shadow-s: 0px 1px 4px rgba(0, 0, 0, 0.16);
+  --shadow-m: 0px 8px 24px rgba(0, 0, 0, 0.16);
+  --shadow-l: 0px 12px 32px rgba(0, 0, 0, 0.24);
+
+  /* ---------- Z-Index ---------- */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-fixed: 200;
+  --z-modal: 1000;
+  --z-toast: 2000;
+}
+
+/* ============================================================
+ * 深色模式（按需启用：html[data-theme="dark"]）
+ * ============================================================ */
+html[data-theme='dark'] {
+  --color-canvas: #111213;
+  --color-canvas-soft: #1C1D1F;
+  --color-surface: #1C1D1F;
+  --color-ink: rgba(255, 255, 255, 0.8);
+  --color-body: rgba(255, 255, 255, 0.5);
+  --color-mute: rgba(255, 255, 255, 0.2);
+  --color-stamp: rgba(255, 255, 255, 0.03);
+  --color-primary: #3080DB;
+  --color-link: #3E88D6;
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.16);
+}

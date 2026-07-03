@@ -1,0 +1,32 @@
+{
+  "name": "dingeval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "钉钉移动端「日常报销」页面复刻，基于 Vue 3 + Vite + TypeScript",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "pinia": "^2.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "postcss-px-to-viewport": "^1.1.1",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.3",
+    "vue-tsc": "^2.1.10"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
