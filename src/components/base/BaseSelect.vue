@@ -9,11 +9,13 @@ interface Props {
   options: OptionItem[]
   placeholder?: string
   title?: string
+  size?: 'sm' | 'md'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: '请选择',
-  title: ''
+  title: '',
+  size: 'sm'
 })
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string | null): void }>()
@@ -39,11 +41,34 @@ function open() {
 <template>
   <button
     type="button"
-    class="picker-trigger"
-    :class="{ placeholder: !display }"
+    :class="['picker-trigger', `picker-trigger--${size}`, { placeholder: !display }]"
     @click="open"
   >
     <span>{{ display || placeholder }}</span>
     <DingIcon name="chevron-right" :size="16" />
   </button>
 </template>
+
+<style scoped>
+.picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-xs);
+  color: var(--color-ink);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.picker-trigger--sm { height: 36px; padding: 0 12px; font-size: 17px; }
+.picker-trigger--md { height: 40px; padding: 0 14px; font-size: 14px; }
+.picker-trigger.placeholder { color: var(--color-mute); }
+
+@media (min-width: var(--bp-desktop)) {
+  .picker-trigger:hover { border-color: var(--color-hairline-strong); }
+}
+</style>

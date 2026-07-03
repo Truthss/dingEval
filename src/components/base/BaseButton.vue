@@ -3,6 +3,7 @@ import DingIcon from './DingIcon.vue'
 
 interface Props {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  size?: 'sm' | 'md'
   block?: boolean
   loading?: boolean
   disabled?: boolean
@@ -10,6 +11,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   variant: 'primary',
+  size: 'sm',
   block: false,
   loading: false,
   disabled: false
@@ -25,7 +27,7 @@ function onClick(e: MouseEvent) {
 <template>
   <button
     type="button"
-    :class="['base-btn', `base-btn--${variant}`, { 'base-btn--block': block, 'base-btn--loading': loading }]"
+    :class="['base-btn', `base-btn--${variant}`, `base-btn--${size}`, { 'base-btn--block': block, 'base-btn--loading': loading }]"
     :disabled="disabled || loading"
     @click="onClick"
   >
@@ -40,15 +42,15 @@ function onClick(e: MouseEvent) {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 32px;
-  padding: 8px 16px;
   border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
   border: 0;
   cursor: pointer;
 }
+.base-btn--sm { min-height: 32px; padding: 8px 16px; }
+.base-btn--md { min-height: 36px; padding: 10px 20px; }
 .base-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .base-btn--block { display: flex; width: 100%; height: 44px; }
 .base-btn--primary {
@@ -72,6 +74,7 @@ function onClick(e: MouseEvent) {
   border: 0;
   padding: 8px 12px;
 }
+.base-btn--ghost.base-btn--md { padding: 10px 12px; }
 .base-btn--ghost:hover:not(:disabled) { background: rgba(0, 127, 255, 0.06); }
 .base-btn--danger {
   background: var(--color-error);
@@ -85,4 +88,11 @@ function onClick(e: MouseEvent) {
   color: currentColor;
 }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* 桌面端 hover 视觉增强：secondary 样式补充背景色 */
+@media (min-width: var(--bp-desktop)) {
+  .base-btn--secondary:hover:not(:disabled) {
+    background: var(--color-surface-press);
+  }
+}
 </style>

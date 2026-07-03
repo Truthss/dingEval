@@ -6,6 +6,7 @@ interface Props {
   readonly?: boolean
   inputmode?: string
   align?: 'left' | 'right'
+  size?: 'sm' | 'md'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -13,7 +14,8 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: '',
   readonly: false,
   inputmode: '',
-  align: 'right'
+  align: 'right',
+  size: 'sm'
 })
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string | number | null): void }>()
@@ -36,6 +38,21 @@ function onInput(e: Event) {
     :readonly="readonly"
     :inputmode="(inputmode as any)"
     :style="{ textAlign: align }"
+    :class="['base-input', `base-input--${size}`]"
     @input="onInput"
   />
 </template>
+
+<style scoped>
+.base-input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font-family: inherit;
+}
+.base-input--sm { height: 36px; padding: 8px 12px; font-size: 17px; }
+.base-input--md { height: 40px; padding: 10px 14px; font-size: 14px; }
+.base-input::placeholder { color: var(--color-mute); }
+</style>
