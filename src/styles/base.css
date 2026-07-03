@@ -45,3 +45,30 @@ a {
   color: var(--color-link);
   text-decoration: none;
 }
+
+/* ============================================================
+ * 桌面端响应式工具类（断点 ≥ 960px 生效）
+ * 移动端不输出任何 display: grid，避免误用
+ * ============================================================ */
+.desktop-container {
+  /* 移动端无样式 */
+}
+
+@media (min-width: var(--bp-desktop)) {
+  .desktop-container {
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
+    padding: 0 var(--layout-padding-x);
+  }
+
+  .desktop-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--layout-grid-gap-col);
+    row-gap: var(--layout-grid-gap-row);
+  }
+
+  .desktop-grid-2--span-2 {
+    grid-column: span 2;
+  }
+}

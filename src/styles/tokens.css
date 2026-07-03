@@ -90,6 +90,16 @@
   --z-fixed: 200;
   --z-modal: 1000;
   --z-toast: 2000;
+
+  /* ---------- Breakpoints ---------- */
+  --bp-mobile-max: 959.98px;
+  --bp-desktop: 960px;
+
+  /* ---------- Desktop Layout ---------- */
+  --layout-max-width: 1200px;
+  --layout-padding-x: 32px;
+  --layout-grid-gap-col: 24px;
+  --layout-grid-gap-row: 16px;
 }
 
 /* ============================================================

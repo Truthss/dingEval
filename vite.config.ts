@@ -24,7 +24,7 @@ export default defineConfig({
           fontViewportUnit: 'vw',
           selectorBlackList: ['.no-vw'],
           minPixelValue: 1,
-          mediaQuery: false,
+          mediaQuery: true,
           replace: true,
           exclude: [/node_modules\/(?!(vant|@vant)\/)/],
           landscape: false
