@@ -90,7 +90,7 @@ function onClick(e: MouseEvent) {
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* 桌面端 hover 视觉增强：secondary 样式补充背景色 */
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .base-btn--secondary:hover:not(:disabled) {
     background: var(--color-surface-press);
   }

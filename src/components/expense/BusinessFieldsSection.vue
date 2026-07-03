@@ -37,7 +37,7 @@ const expense = useExpenseStore()
   flex-direction: column;
 }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .business-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

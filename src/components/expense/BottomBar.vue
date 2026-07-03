@@ -62,7 +62,7 @@ function submit() {
 .bottom-bar__inner :deep(.base-btn--primary) { flex: 1; }
 
 /* 桌面端：右下角浮动面板，上下堆叠两按钮 */
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .bottom-bar {
     position: fixed;
     right: 32px;

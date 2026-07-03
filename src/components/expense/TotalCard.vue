@@ -93,7 +93,7 @@ function showUnsupported() {
 }
 .total-card__action:hover { background: rgba(0, 127, 255, 0.06); }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .total-card { margin: 0; }
 }
 </style>

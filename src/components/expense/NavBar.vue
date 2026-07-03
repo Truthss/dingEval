@@ -94,7 +94,7 @@ function showUnsupported() {
   gap: 4px;
 }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .nav-bar__title { font-size: 18px; }
   .nav-bar__actions { display: flex; }
 }

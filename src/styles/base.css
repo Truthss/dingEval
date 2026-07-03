@@ -54,7 +54,7 @@ a {
   /* 移动端无样式 */
 }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .desktop-container {
     max-width: var(--layout-max-width);
     margin: 0 auto;

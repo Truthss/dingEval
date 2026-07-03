@@ -68,7 +68,7 @@ function open() {
 .picker-trigger--md { height: 40px; padding: 0 14px; font-size: 14px; }
 .picker-trigger.placeholder { color: var(--color-mute); }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .picker-trigger:hover { border-color: var(--color-hairline-strong); }
 }
 </style>

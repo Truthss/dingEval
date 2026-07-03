@@ -98,7 +98,7 @@ const emit = defineEmits<{
   flex-direction: column;
 }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .item-card__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

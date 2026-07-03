@@ -198,7 +198,7 @@ function setItemCardRef(el: unknown, index: number) {
 }
 .add-detail-card:hover { background: rgba(0, 127, 255, 0.04); }
 
-@media (min-width: var(--bp-desktop)) {
+@media (min-width: 960px) {
   .page-main { gap: 16px; padding-top: 24px; padding-bottom: 96px; }
   .add-detail-card { margin: 0; }
 }
