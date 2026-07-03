@@ -92,4 +92,8 @@ function showUnsupported() {
   transition: background 0.15s;
 }
 .total-card__action:hover { background: rgba(0, 127, 255, 0.06); }
+
+@media (min-width: var(--bp-desktop)) {
+  .total-card { margin: 0; }
+}
 </style>

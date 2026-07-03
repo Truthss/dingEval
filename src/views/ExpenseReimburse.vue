@@ -125,7 +125,7 @@ function setItemCardRef(el: unknown, index: number) {
   <div class="reimburse-page">
     <NavBar />
 
-    <main class="page-main">
+    <main class="page-main desktop-container">
       <RelatedApply />
 
       <TotalCard :total="expense.totalAmount" />
@@ -197,4 +197,9 @@ function setItemCardRef(el: unknown, index: number) {
   border: 0;
 }
 .add-detail-card:hover { background: rgba(0, 127, 255, 0.04); }
+
+@media (min-width: var(--bp-desktop)) {
+  .page-main { gap: 16px; padding-top: 24px; padding-bottom: 96px; }
+  .add-detail-card { margin: 0; }
+}
 </style>
