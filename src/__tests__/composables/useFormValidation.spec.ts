@@ -96,9 +96,9 @@ describe('useFormValidation', () => {
 
     const amountEl = document.createElement('div')
     const refs = {
-      amountRefs: ref<HTMLElement | null>(amountEl),
-      dateRefs: ref<HTMLElement | null>(document.createElement('div')),
-      categoryRefs: ref<HTMLElement | null>(document.createElement('div')),
+      amountRefs: [ref<HTMLElement | null>(amountEl)],
+      dateRefs: [ref<HTMLElement | null>(document.createElement('div'))],
+      categoryRefs: [ref<HTMLElement | null>(document.createElement('div'))],
       payerRef: ref<HTMLElement | null>(document.createElement('div'))
     }
 
@@ -126,9 +126,9 @@ describe('useFormValidation', () => {
 
 function makeRefs() {
   return {
-    amountRefs: ref<HTMLElement | null>(document.createElement('div')),
-    dateRefs: ref<HTMLElement | null>(document.createElement('div')),
-    categoryRefs: ref<HTMLElement | null>(document.createElement('div')),
+    amountRefs: [ref<HTMLElement | null>(document.createElement('div'))],
+    dateRefs: [ref<HTMLElement | null>(document.createElement('div'))],
+    categoryRefs: [ref<HTMLElement | null>(document.createElement('div'))],
     payerRef: ref<HTMLElement | null>(document.createElement('div'))
   }
 }
