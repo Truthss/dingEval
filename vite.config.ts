@@ -19,7 +19,7 @@ export default defineConfig({
           unitToConvert: 'px',
           viewportWidth: 375,
           unitPrecision: 5,
-          propList: ['*'],
+          propList: ['*', '!--*'],
           viewportUnit: 'vw',
           fontViewportUnit: 'vw',
           selectorBlackList: ['.no-vw'],
