@@ -29,23 +29,29 @@ const state: Ref<ToastState> = ref({
   dismiss: null
 })
 
+type ToastPayload = {
+  type?: ToastType
+  message: string
+  action?: ToastAction
+  dismiss?: ToastDismiss
+  duration?: number
+}
+
 export function useToast() {
-  function show(payload: {
-    type?: ToastType
-    message: string
-    action?: ToastAction
-    dismiss?: ToastDismiss
-    duration?: number
-  }) {
+  function show(message: string): void
+  function show(payload: ToastPayload): void
+  function show(payload: string | ToastPayload) {
+    const p: ToastPayload = typeof payload === 'string'
+      ? { message: payload, type: 'info' }
+      : payload
     state.value = {
-      type: payload.type ?? 'info',
-      message: payload.message,
-      action: payload.action ?? null,
-      dismiss: payload.dismiss ?? null,
+      type: p.type ?? 'info',
+      message: p.message,
+      action: p.action ?? null,
+      dismiss: p.dismiss ?? null,
       visible: true
     }
-
-    const duration = payload.duration ?? 3000
+    const duration = p.duration ?? 3000
     if (duration > 0) {
       setTimeout(() => {
         state.value.visible = false

@@ -19,26 +19,26 @@ export type ErrorPath =
 
 export interface ValidationResult {
   ok: boolean
-  firstErrorRef?: Ref<HTMLElement | null>
+  firstErrorRef?: HTMLElement | null
 }
 
 export function useFormValidation(params: { refs: ValidationRefs; store: Store }) {
   const { refs, store } = params
   const errors = ref<Record<string, string>>({})
-  const firstErrorRef = ref<Ref<HTMLElement | null> | undefined>(undefined)
+  const firstErrorRef = ref<HTMLElement | null>(null)
   const firstErrorFound = ref(false)
 
   function setError(path: ErrorPath, message: string, ref?: Ref<HTMLElement | null>) {
     errors.value[path] = message
     if (!firstErrorFound.value && ref?.value) {
-      firstErrorRef.value = ref
+      firstErrorRef.value = ref.value
       firstErrorFound.value = true
     }
   }
 
   function validate(): ValidationResult {
     errors.value = {}
-    firstErrorRef.value = undefined
+    firstErrorRef.value = null
     firstErrorFound.value = false
 
     store.items.forEach((item, i) => {
@@ -57,8 +57,9 @@ export function useFormValidation(params: { refs: ValidationRefs; store: Store }
       setError('payer', '请选择付款人', refs.payerRef)
     }
 
-    if (firstErrorRef.value) {
-      firstErrorRef.value.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const el = firstErrorRef.value as HTMLElement | null
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
 
     return {

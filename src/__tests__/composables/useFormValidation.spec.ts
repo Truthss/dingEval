@@ -105,7 +105,7 @@ describe('useFormValidation', () => {
     const { validate } = useFormValidation({ refs, store })
     const result = validate()
     expect(result.ok).toBe(false)
-    expect(result.firstErrorRef?.value).toBe(amountEl)
+    expect(result.firstErrorRef).toBe(amountEl)
   })
 
   it('clearError removes one entry', async () => {
