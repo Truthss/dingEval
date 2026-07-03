@@ -49,5 +49,16 @@ export default defineConfig({
         }
       }
     }
+  },
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    include: ['src/**/__tests__/**/*.spec.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{ts,vue}'],
+      exclude: ['src/**/__tests__/**', 'src/mocks/**', 'src/types/**', 'src/main.ts', 'src/router/**']
+    }
   }
 })
