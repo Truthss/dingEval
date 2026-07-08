@@ -76,7 +76,14 @@ export interface ExpenseForm {
   saveDraft(): void
   restoreDraft(): boolean
   clearDraft(): void
+
+  // validation
+  validate(): ValidationResult
 }
+
+export type ValidationResult =
+  | { ok: true }
+  | { ok: false; errors: ItemErrors; payerMissing: boolean }
 
 export function useExpenseForm(): ExpenseForm {
   const relatedApplyId = ref<string | null>(null)
@@ -177,6 +184,26 @@ export function useExpenseForm(): ExpenseForm {
     }
   }
 
+  function validate(): ValidationResult {
+    const errs: ItemErrors = {}
+    let payerMissing = false
+
+    items.value.forEach((it, i) => {
+      const e: { amount?: string; occurredAt?: string; category?: string } = {}
+      if (!it.amount || it.amount <= 0) e.amount = `请输入第 ${i + 1} 条的报销金额`
+      if (!it.occurredAt) e.occurredAt = `请选择第 ${i + 1} 条的费用日期`
+      if (!it.category) e.category = `请选择第 ${i + 1} 条的费用类型`
+      if (e.amount || e.occurredAt || e.category) errs[i] = e
+    })
+
+    if (!flow.payerId) payerMissing = true
+
+    if (Object.keys(errs).length === 0 && !payerMissing) {
+      return { ok: true }
+    }
+    return { ok: false, errors: errs, payerMissing }
+  }
+
   return {
     relatedApplyId,
     items,
@@ -196,6 +223,7 @@ export function useExpenseForm(): ExpenseForm {
     toDraft,
     saveDraft,
     restoreDraft,
-    clearDraft
+    clearDraft,
+    validate
   }
 }

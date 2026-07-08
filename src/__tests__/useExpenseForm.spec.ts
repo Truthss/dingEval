@@ -47,6 +47,45 @@ describe('useExpenseForm - items', () => {
   })
 })
 
+describe('useExpenseForm - validation', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('validate fails when amount missing', () => {
+    const form = useExpenseForm()
+    const result = form.validate()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.errors[0]?.amount).toBeTruthy()
+      expect(result.payerMissing).toBe(true)
+    }
+  })
+
+  it('validate fails when payer missing', () => {
+    const form = useExpenseForm()
+    form.updateItem(form.items.value[0].id, { amount: 100, occurredAt: '2026-07-08', category: 'transport' })
+    const result = form.validate()
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.payerMissing).toBe(true)
+  })
+
+  it('validate succeeds when all required fields present', () => {
+    const form = useExpenseForm()
+    form.updateItem(form.items.value[0].id, { amount: 100, occurredAt: '2026-07-08', category: 'transport' })
+    form.flow.payerId = 'u-payer'
+    const result = form.validate()
+    expect(result.ok).toBe(true)
+  })
+
+  it('totalAmount sums item amounts', () => {
+    const form = useExpenseForm()
+    form.updateItem(form.items.value[0].id, { amount: 100 })
+    form.addItem()
+    form.updateItem(form.items.value[1].id, { amount: 50.5 })
+    expect(form.totalAmount.value).toBe(150.5)
+  })
+})
 describe('useExpenseForm - draft', () => {
   beforeEach(() => {
     localStorage.clear()
