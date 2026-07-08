@@ -6,6 +6,7 @@ const props = defineProps<{
   flow: Flow
   users: User[]
   payerMissing?: boolean
+  loadError?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -28,6 +29,13 @@ function removeCc(id: string): void {
 
 <template>
   <div class="flow-picker">
+    <div
+      v-if="loadError && users.length === 0"
+      class="flow-picker__fallback"
+      role="status"
+    >
+      暂无可选人员，请手动输入员工号
+    </div>
     <div class="flow-picker__row" :class="{ 'has-error': payerMissing }">
       <span class="flow-picker__dot" aria-hidden="true"></span>
       <div class="flow-picker__info">
@@ -269,5 +277,14 @@ function removeCc(id: string): void {
 
 .flow-picker__add:hover {
   background: rgba(0, 127, 255, 0.12);
+}
+
+.flow-picker__fallback {
+  font-size: var(--font-size-footnote);
+  color: var(--color-warning);
+  background: rgba(255, 146, 0, 0.08);
+  border-radius: var(--radius-xs);
+  padding: 8px 12px;
+  margin-bottom: 8px;
 }
 </style>

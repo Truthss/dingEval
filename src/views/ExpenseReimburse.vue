@@ -22,6 +22,7 @@ const form = inject<ExpenseForm>('expenseForm')!
 const router = useRouter()
 
 const users = ref<User[]>([])
+const contactLoadError = ref(false)
 const draftPromptVisible = ref(false)
 const activeId = ref('related')
 const draftDebounce = ref<number | null>(null)
@@ -173,8 +174,10 @@ onMounted(async () => {
   // Try to fetch contacts (best-effort)
   try {
     users.value = await fetchContacts()
+    contactLoadError.value = false
   } catch {
     users.value = []
+    contactLoadError.value = true
   }
 
   // Try to restore draft
@@ -282,6 +285,7 @@ function onDiscardDraft(): void {
         <NotifySection
           :model-value="form.notifyUserIds.value"
           :users="users"
+          :load-error="contactLoadError"
           @update:model-value="(v) => (form.notifyUserIds.value = v)"
           @pick="() => notifyStub('人员选择器即将上线')"
         />
@@ -291,6 +295,7 @@ function onDiscardDraft(): void {
         <FlowPicker
           :flow="form.flow"
           :users="users"
+          :load-error="contactLoadError"
           :payer-missing="!form.flow.payerId && Object.keys(form.errors).length > 0"
           @update:flow="(v) => Object.assign(form.flow, v)"
           @pick="() => notifyStub('人员选择器即将上线')"
