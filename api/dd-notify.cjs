@@ -1,5 +1,6 @@
 // api/dd-notify.cjs
 const https = require('node:https')
+const ddConfig = require('./_lib/dd-config.cjs')
 const { getAccessToken } = require('./_lib/dd-token.cjs')
 
 function httpsPost(url, data) {
@@ -42,7 +43,7 @@ module.exports = async (req, res) => {
     }
     const accessToken = await getAccessToken()
     const msgBody = {
-      agent_id: process.env.DD_AGENT_ID,
+      agent_id: ddConfig.agentId,
       userid_list: useridList.join(','),
       msg: {
         msgtype: 'action_card',
