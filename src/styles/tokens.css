@@ -100,6 +100,41 @@
   --layout-padding-x: 32px;
   --layout-grid-gap-col: 24px;
   --layout-grid-gap-row: 16px;
+
+  /* ---------- 3 列布局（v1.2 桌面端重构） ---------- */
+  --layout-navbar-offset: 72px;          /* NavBar 48 + 间距 24 */
+  --layout-3col-max-width: 1320px;       /* 240 + 24 + 720 + 24 + 280 + 32 (padding) */
+  --layout-3col-gap: 24px;               /* 居中表单与左右两列的间距 */
+  --layout-3col-nav-width: 240px;        /* SideNav 列宽 */
+  --layout-3col-form-width: 720px;       /* 居中表单列宽（minmax 上限） */
+  --layout-3col-summary-width: 280px;    /* SummaryPanel 列宽 */
+  --layout-3col-padding-x: 16px;         /* 容器水平内边距 */
+  --layout-3col-padding-bottom: 96px;    /* 容器底部内边距（沿用 v1.1 的 96，给 DingtalkFooter 留白） */
+}
+
+/* ============================================================
+ * 桌面端 Token 切换（DESIGN.md 桌面端字号 + 阴影分级）
+ * 仅在 ≥960px 生效，Mobile 值不变
+ *
+ * 关键：`:root, html[data-theme='dark']` 合并选择器。
+ * 若只写在 `:root` 内，dark 块（特异性 0,1,1 > :root 的 0,0,1）
+ * 会"赢者通吃"，把 dark 模式下 desktop 字号反转回 mobile 值。
+ * 合并选择器后两者同时被覆盖。
+ * ============================================================ */
+@media (min-width: 960px) {
+  :root,
+  html[data-theme='dark'] {
+    /* 桌面端字号阶梯（DESIGN.md Typography Hierarchy） */
+    --font-size-body: 14px;          /* Mobile 17 → Desktop 14 */
+    --font-size-h1: 24px;            /* Mobile 20 → Desktop 24 */
+    --font-size-h2: 20px;            /* Mobile 18 → Desktop 20 */
+    --font-size-description: 13px;   /* Mobile 14 → Desktop 13 */
+    /* --font-size-subhead 保持 15px 不变 */
+
+    /* 桌面端阴影分级（适配大屏感知，y 偏移稍增 + 透明度稍降） */
+    --shadow-s: 0px 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-m: 0px 8px 24px rgba(0, 0, 0, 0.12);
+  }
 }
 
 /* ============================================================
