@@ -16,6 +16,8 @@ import NotifySection from '@/components/expense/NotifySection.vue'
 import FlowSection from '@/components/expense/FlowSection.vue'
 import BottomBar from '@/components/expense/BottomBar.vue'
 import DingtalkFooter from '@/components/expense/DingtalkFooter.vue'
+import SideNav from '@/components/expense/SideNav.vue'
+import SummaryPanel from '@/components/expense/SummaryPanel.vue'
 
 const expense = useExpenseStore()
 const toast = useToast()
@@ -125,43 +127,53 @@ function setItemCardRef(el: unknown, index: number) {
   <div class="reimburse-page">
     <NavBar />
 
-    <main class="page-main desktop-container">
-      <RelatedApply />
+    <div class="reimburse-layout">
+      <SideNav />
 
-      <TotalCard :total="expense.totalAmount" />
+      <main class="page-main">
+        <RelatedApply />
 
-      <ItemCard
-        v-for="(item, index) in expense.items"
-        :key="item.id"
-        :item="item"
-        :index="index"
-        :removable="expense.items.length > 1"
-        :errors="errors[index] || {}"
-        :ref="(el) => setItemCardRef(el, index)"
-        @remove="expense.removeItem"
-        @clear-error="(k) => clearItemError(index, k)"
+        <TotalCard :total="expense.totalAmount" />
+
+        <ItemCard
+          v-for="(item, index) in expense.items"
+          :key="item.id"
+          :item="item"
+          :index="index"
+          :removable="expense.items.length > 1"
+          :errors="errors[index] || {}"
+          :ref="(el) => setItemCardRef(el, index)"
+          @remove="expense.removeItem"
+          @clear-error="(k) => clearItemError(index, k)"
+        />
+
+        <button
+          type="button"
+          class="add-detail-card"
+          @click="expense.addItem"
+        >
+          + 添加报销明细
+        </button>
+
+        <InvoiceBlock />
+
+        <OwnershipSection />
+
+        <BusinessFieldsSection />
+
+        <NotifySection />
+
+        <FlowSection ref="flowSectionRef" />
+
+        <DingtalkFooter />
+      </main>
+
+      <SummaryPanel
+        :total="expense.totalAmount"
+        :is-valid="expense.isValid"
+        @submit="handleSubmit"
       />
-
-      <button
-        type="button"
-        class="add-detail-card"
-        @click="expense.addItem"
-      >
-        + 添加报销明细
-      </button>
-
-      <InvoiceBlock />
-
-      <OwnershipSection />
-
-      <BusinessFieldsSection />
-
-      <NotifySection />
-
-      <FlowSection ref="flowSectionRef" />
-
-      <DingtalkFooter />
-    </main>
+    </div>
 
     <BottomBar :is-valid="expense.isValid" @submit="handleSubmit" />
   </div>
@@ -199,7 +211,22 @@ function setItemCardRef(el: unknown, index: number) {
 .add-detail-card:hover { background: rgba(0, 127, 255, 0.04); }
 
 @media (min-width: 960px) {
-  .page-main { gap: 16px; padding-top: 24px; padding-bottom: 96px; }
+  .reimburse-layout {
+    display: grid;
+    grid-template-columns:
+      var(--layout-3col-nav-width)
+      minmax(0, var(--layout-3col-form-width))
+      var(--layout-3col-summary-width);
+    gap: var(--layout-3col-gap);
+    align-items: start;             /* 统一管理 sticky 子元素的对齐 */
+    max-width: var(--layout-3col-max-width);
+    margin: 0 auto;
+    padding: var(--space-lg) var(--layout-3col-padding-x) var(--layout-3col-padding-bottom);
+  }
+  /* 移除重复的 align-self: start：sticky 组件自身已管理 top offset，
+     grid 容器只需要 align-items: start，子元素按内容顶部对齐 */
+
+  .page-main { gap: 16px; padding: 0; background: transparent; }
   .add-detail-card { margin: 0; }
 }
 </style>
