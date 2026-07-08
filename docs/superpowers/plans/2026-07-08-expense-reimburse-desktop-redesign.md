@@ -1,4 +1,4 @@
-# 钉钉「日常报销」桌面端重构 v1.2 实施计划
+# 钉钉「日常报销」桌面端重构 v1.2.1 实施计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -9,6 +9,26 @@
 **Tech Stack:** Vue 3 SFC + CSS scoped + postcss-px-to-viewport（375px 基准 + 桌面端 px 字面量）+ Pinia
 
 **Spec:** `docs/superpowers/specs/2026-07-08-expense-reimburse-desktop-redesign-design.md`
+
+## Plan Revisions（v1.2 → v1.2.1，codex-review 修复）
+
+| # | 级别 | 修复项 | 落地位置 |
+|---|---|---|---|
+| 1 | P1 | 桌面端字号/阴影 token 在深色模式下被特异性反转 → 合并 light + dark 选择器到同一媒体查询 | Task 1 Step 2 |
+| 2 | P2 | `tokens.css:104` 行号与"文件末尾"自相矛盾 → 改为描述性位置 | Task 1 Files |
+| 3 | P2 | 新增 `--layout-navbar-offset` / `--layout-3col-*` token，统一 sticky top 与 3 列网格尺寸 | Task 1 Step 2 |
+| 4 | P2 | SideNav `<a href="#">` 触发跳顶 → 改为 `<button type="button">` | Task 3 Step 2 |
+| 5 | P2 | SideNav `<nav>` 嵌在 `<aside>` 内部 landmark 语义混乱 → 外层改 `<nav>`，内层改 `<ul>` | Task 3 Step 2 |
+| 6 | P2 | SideNav / SummaryPanel `top: 72px` 硬编码两处 → 改用 `var(--layout-navbar-offset)` | Task 3 / Task 4 |
+| 7 | P2 | SummaryPanel `useDraftStorage()` 在 saveDraft 内每次新建实例 → 提到 script 顶层复用 | Task 4 Step 2 |
+| 8 | P2 | 忽略已存在的 layout token，硬编码 1320 / 16 / 24 → 改用 `--layout-3col-*` token | Task 6 Step 4 |
+| 9 | P3 | 移除 `align-self: start` 父子两边重复声明 | Task 3 / Task 4 / Task 6 |
+| 10 | P3 | SideNav / SummaryPanel 改用 additive `min-width: 960px` 媒体查询，与代码库其他文件一致 | Task 3 / Task 4 |
+| 11 | P3 | 金额 `color: var(--color-error)`（红/橙）暗示错误 → 改 `var(--color-ink)` | Task 4 |
+| 12 | P3 | Task 7 Check #12 `\|\| position === 'sticky'` 永远为真 → 只断言 `display: none` | Task 7 Step 3 |
+| 13 | P2 | Task 6 padding 引用未定义的 `--layout-3col-padding-x` + 底部 52px 与 v1.1 的 96px 不一致 → 补充 `--layout-3col-padding-x: 16px` / `--layout-3col-padding-bottom: 96px` 两个 token | Task 1 Step 2 + Task 6 Step 4 |
+
+> 修复后的 P0 / P1 阻塞项：**0**。P2 修复全部落到具体 step 内可执行；P3 已闭合。
 
 ## 并行执行图
 
@@ -49,13 +69,15 @@ Task 1: tokens.css 桌面端切换              [必经]
 ## Task 1: tokens.css 桌面端 token 切换（基线任务，必须先做）
 
 **Files:**
-- Modify: `src/styles/tokens.css:104`（在文件末尾、`:root` 块外、深色模式块前追加）
+- Modify: `src/styles/tokens.css`（在 `:root` 块闭合 `}` 之后、`html[data-theme='dark']` 块之前插入新的桌面端 token 块；同时把 `--layout-3col-*` / `--layout-navbar-offset` 8 个新 token 加到 `:root` 块内「Desktop Layout」段末尾）
 
 **Interfaces:**
 - Consumes: DESIGN.md 桌面端字号阶梯（Body 14 / H1 24 / H2 20 / Subhead 15 / Description 13）+ 阴影分级
-- Produces: 6 个 token 变量在 `@media (min-width: 960px)` 内的桌面端值；其他组件在 Task 2-5 中会引用这些 token
+- Produces:
+  - 6 个 token 变量在 `@media (min-width: 960px)` 内的桌面端值（**合并 `:root, html[data-theme='dark']` 选择器**，避免 dark 块特异性反转）
+  - 8 个 layout token：`--layout-navbar-offset`（1 个）+ `--layout-3col-*`（7 个：max-width / gap / nav-width / form-width / summary-width / padding-x / padding-bottom）
 
-**为什么先做**：所有桌面端视觉都依赖这 6 个 token；其他 4 个并行 task 都需要这个基础就绪。
+**为什么先做**：所有桌面端视觉都依赖这 6 个字号/阴影 token + 8 个 layout token；其他 4 个并行 task 都需要这个基础就绪。
 
 - [ ] **Step 1: 读取现有 tokens.css 确认 token 名称**
 
@@ -63,17 +85,44 @@ Task 1: tokens.css 桌面端切换              [必经]
 - `--font-size-body`、`--font-size-h1`、`--font-size-h2`、`--font-size-description`
 - `--shadow-s`、`--shadow-m`
 
-- [ ] **Step 2: 在文件末尾追加桌面端 token 块**
+读 `src/styles/tokens.css:98-103` 确认 Desktop Layout 段已存在：
+- `--layout-max-width`、`--layout-padding-x`、`--layout-grid-gap-col`、`--layout-grid-gap-row`
 
-在 `src/styles/tokens.css` 的最末尾（最后一行换行后）追加：
+- [ ] **Step 2: 在 :root 块 Desktop Layout 段末尾追加 8 个新 token**
+
+在 `src/styles/tokens.css:103` 之前（`--layout-grid-gap-row: 16px;` 后面、`:root` 闭合 `}` 之前）追加：
+
+```css
+  /* ---------- 3 列布局（v1.2 桌面端重构） ---------- */
+  --layout-navbar-offset: 72px;          /* NavBar 48 + 间距 24 */
+  --layout-3col-max-width: 1320px;       /* 240 + 24 + 720 + 24 + 280 + 32 (padding) */
+  --layout-3col-gap: 24px;               /* 居中表单与左右两列的间距 */
+  --layout-3col-nav-width: 240px;        /* SideNav 列宽 */
+  --layout-3col-form-width: 720px;       /* 居中表单列宽（minmax 上限） */
+  --layout-3col-summary-width: 280px;    /* SummaryPanel 列宽 */
+  --layout-3col-padding-x: 16px;         /* 容器水平内边距 */
+  --layout-3col-padding-bottom: 96px;    /* 容器底部内边距（沿用 v1.1 的 96，给 DingtalkFooter 留白） */
+```
+
+- [ ] **Step 3: 在文件末尾、:root 块外、dark 块前插入桌面端 token 覆盖块**
+
+> 定位方式（描述性，避开行号漂移）：在 `src/styles/tokens.css` 的 `:root { ... }` 闭合大括号（Step 2 插入 8 个新 token 之后的那一行 `}`）之后、`/* ===` 深色模式注释块之前插入；不要插到 `:root` 内部。
+
+插入内容：
 
 ```css
 /* ============================================================
  * 桌面端 Token 切换（DESIGN.md 桌面端字号 + 阴影分级）
  * 仅在 ≥960px 生效，Mobile 值不变
+ *
+ * 关键：`:root, html[data-theme='dark']` 合并选择器。
+ * 若只写在 `:root` 内，dark 块（特异性 0,1,1 > :root 的 0,0,1）
+ * 会"赢者通吃"，把 dark 模式下 desktop 字号反转回 mobile 值。
+ * 合并选择器后两者同时被覆盖。
  * ============================================================ */
 @media (min-width: 960px) {
-  :root {
+  :root,
+  html[data-theme='dark'] {
     /* 桌面端字号阶梯（DESIGN.md Typography Hierarchy） */
     --font-size-body: 14px;          /* Mobile 17 → Desktop 14 */
     --font-size-h1: 24px;            /* Mobile 20 → Desktop 24 */
@@ -88,7 +137,7 @@ Task 1: tokens.css 桌面端切换              [必经]
 }
 ```
 
-- [ ] **Step 3: 验证 typecheck + build**
+- [ ] **Step 4: 验证 typecheck + build**
 
 ```bash
 pnpm typecheck
@@ -97,11 +146,11 @@ pnpm build
 
 Expected：两者都成功，无新增 error/warning。
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add src/styles/tokens.css
-git commit -m "feat(tokens): desktop token switch at >=960px (font + shadow)"
+git commit -m "feat(tokens): desktop token switch at >=960px (font + shadow) + 3-col layout tokens"
 ```
 
 ---
@@ -199,7 +248,7 @@ import DingIcon from '../base/DingIcon.vue'
 </script>
 
 <template>
-  <aside class="side-nav" aria-label="主导航">
+  <nav class="side-nav" aria-label="主导航">
     <!-- Logo + 品牌 -->
     <div class="side-nav__brand">
       <div class="side-nav__logo" aria-hidden="true">
@@ -213,19 +262,25 @@ import DingIcon from '../base/DingIcon.vue'
     <!-- 导航标题 -->
     <div class="side-nav__caption">导航</div>
 
-    <!-- 导航项（仅 1 个） -->
-    <nav class="side-nav__items">
-      <a class="side-nav__item side-nav__item--active" href="#" aria-current="page">
-        <span class="side-nav__item-icon" aria-hidden="true">
-          <DingIcon name="check" :size="16" />
-        </span>
-        <span class="side-nav__item-label">日常报销</span>
-      </a>
-    </nav>
+    <!-- 导航项（仅 1 个；激活项用 button 而非 a，避免 href="# 跳顶） -->
+    <ul class="side-nav__items">
+      <li>
+        <button
+          type="button"
+          class="side-nav__item side-nav__item--active"
+          aria-current="page"
+        >
+          <span class="side-nav__item-icon" aria-hidden="true">
+            <DingIcon name="check" :size="16" />
+          </span>
+          <span class="side-nav__item-label">日常报销</span>
+        </button>
+      </li>
+    </ul>
 
     <!-- 底部版本号 -->
     <div class="side-nav__footer">v0.1.0</div>
-  </aside>
+  </nav>
 </template>
 
 <style scoped>
@@ -234,12 +289,11 @@ import DingIcon from '../base/DingIcon.vue'
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-s);
   padding: var(--space-lg);
-  display: flex;
+  display: none;                 /* Mobile 默认隐藏（additive media query） */
   flex-direction: column;
   min-height: 360px;
   position: sticky;
-  top: 72px;            /* NavBar 48px + 24px 间距 */
-  align-self: start;
+  top: var(--layout-navbar-offset);
 }
 
 .side-nav__brand {
@@ -278,6 +332,9 @@ import DingIcon from '../base/DingIcon.vue'
 }
 
 .side-nav__items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -288,10 +345,15 @@ import DingIcon from '../base/DingIcon.vue'
   align-items: center;
   gap: var(--space-sm);
   padding: 8px 12px;
+  border: 0;                    /* button 默认 border 需显式重置 */
+  background: transparent;       /* button 默认 background 需显式重置 */
   border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--color-body);
   font-size: var(--font-size-body);
+  font-family: inherit;          /* button 默认字体可能与 body 不同 */
+  text-align: left;             /* button 默认 center，重置为左对齐 */
+  width: 100%;
   transition: background 0.15s;
   cursor: default;
 }
@@ -314,8 +376,9 @@ import DingIcon from '../base/DingIcon.vue'
   padding-top: var(--space-md);
 }
 
-@media (max-width: 959.98px) {
-  .side-nav { display: none; }
+/* 桌面端才显示（与代码库其他组件一致的 additive 媒体查询） */
+@media (min-width: 960px) {
+  .side-nav { display: flex; }
 }
 </style>
 ```
@@ -367,6 +430,8 @@ useDraftStorage().save(draft)
 toast.show({ message: '已保存为草稿', type: 'success' })
 ```
 
+> 注意：原 BottomBar 每次点击都 `useDraftStorage()` 重新调用一次（`src/utils/draftStorage.ts:47-49` 内部 `return draftStorage()` 每次都新建对象），是既存的小浪费。**SummaryPanel 应在 script 顶层调用一次并复用**，不顺手修 BottomBar（避免越界）。
+
 - [ ] **Step 2: 创建 SummaryPanel.vue**
 
 新建 `src/components/expense/SummaryPanel.vue`，内容：
@@ -390,10 +455,11 @@ const emit = defineEmits<{ (e: 'submit'): void }>()
 
 const toast = useToast()
 const expense = useExpenseStore()
+const draftStorage = useDraftStorage()  // 顶层复用，saveDraft 内不再重复实例化
 
 function saveDraft() {
   const draft = expense.toDraft()
-  useDraftStorage().save(draft)
+  draftStorage.save(draft)
   toast.show({ message: '已保存为草稿', type: 'success' })
 }
 
@@ -433,12 +499,11 @@ function submit() {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-m);          /* card-elevated */
   padding: var(--space-lg);
-  display: flex;
+  display: none;                        /* Mobile 默认隐藏（additive media query） */
   flex-direction: column;
   gap: var(--space-md);
   position: sticky;
-  top: 72px;
-  align-self: start;
+  top: var(--layout-navbar-offset);
 }
 
 .summary-panel__label {
@@ -452,15 +517,17 @@ function submit() {
   align-items: baseline;
   gap: 4px;
 }
+/* 金额用 ink 而非 error：error 色（红/橙）语义为"错误/危险"，
+   报销总额是业务正向结果，用 error 会给用户"出错了"的负向暗示 */
 .summary-panel__symbol {
   font-size: 18px;
   font-weight: 500;
-  color: var(--color-error);
+  color: var(--color-ink);
 }
 .summary-panel__num {
   font-size: 32px;
   font-weight: 600;
-  color: var(--color-error);
+  color: var(--color-ink);
   letter-spacing: -0.5px;
   font-variant-numeric: tabular-nums;
   font-family: var(--font-family-mono);
@@ -485,8 +552,9 @@ function submit() {
   margin-top: var(--space-xs);
 }
 
-@media (max-width: 959.98px) {
-  .summary-panel { display: none; }
+/* 桌面端才显示（与代码库其他组件一致的 additive 媒体查询） */
+@media (min-width: 960px) {
+  .summary-panel { display: flex; }
 }
 </style>
 ```
@@ -625,7 +693,7 @@ import SummaryPanel from '@/components/expense/SummaryPanel.vue'
     <NavBar />
 
     <div class="reimburse-layout">
-      <SideNav class="reimburse-layout__nav" />
+      <SideNav />
 
       <main class="page-main">
         <RelatedApply />
@@ -666,7 +734,6 @@ import SummaryPanel from '@/components/expense/SummaryPanel.vue'
       </main>
 
       <SummaryPanel
-        class="reimburse-layout__summary"
         :total="expense.totalAmount"
         :is-valid="expense.isValid"
         @submit="handleSubmit"
@@ -678,6 +745,8 @@ import SummaryPanel from '@/components/expense/SummaryPanel.vue'
 </template>
 ```
 
+> 不再传 `class="reimburse-layout__nav"` / `reimburse-layout__summary`：Step 4 的 grid 改用 `align-items: start` 在容器层统一管理，不再需要子元素带 grid 专属 class（删除冗余 class 避免误导）。
+
 - [ ] **Step 4: 替换 style 桌面端块**
 
 将 `src/views/ExpenseReimburse.vue:201-204` 替换为：
@@ -686,21 +755,31 @@ import SummaryPanel from '@/components/expense/SummaryPanel.vue'
 @media (min-width: 960px) {
   .reimburse-layout {
     display: grid;
-    grid-template-columns: 240px minmax(0, 720px) 280px;
-    gap: 24px;
-    align-items: start;
-    max-width: 1320px;          /* 240 + 24 + 720 + 24 + 280 + 32 (padding) = 1320 */
+    grid-template-columns:
+      var(--layout-3col-nav-width)
+      minmax(0, var(--layout-3col-form-width))
+      var(--layout-3col-summary-width);
+    gap: var(--layout-3col-gap);
+    align-items: start;             /* 统一管理 sticky 子元素的对齐 */
+    max-width: var(--layout-3col-max-width);
     margin: 0 auto;
-    padding: 24px 16px 96px;
+    padding: var(--space-lg) var(--layout-3col-padding-x) var(--layout-3col-padding-bottom);
   }
-  .reimburse-layout__nav { align-self: start; }
-  .reimburse-layout__summary { align-self: start; }
+  /* 移除重复的 align-self: start：sticky 组件自身已管理 top offset，
+     grid 容器只需要 align-items: start，子元素按内容顶部对齐 */
 
   .page-main { gap: 16px; padding: 0; background: transparent; }
   .add-detail-card { margin: 0; }
 }
 ```
 
+> 重要 token 说明（来自 Task 1）：
+> - `--layout-3col-nav-width: 240px`、`--layout-3col-summary-width: 280px`：左右两列硬宽度
+> - `--layout-3col-form-width: 720px`：居中表单列宽上限（用 `minmax(0, 720px)` 避免内容撑爆）
+> - `--layout-3col-gap: 24px`：列间距
+> - `--layout-3col-max-width: 1320px`：grid 容器最大宽度（240 + 24 + 720 + 24 + 280 + 32 padding = 1320）
+> - `--layout-3col-padding-x: 16px` / `--layout-3col-padding-bottom: 96px`：容器内边距（96 沿用 v1.1 .page-main 的 bottom，给 DingtalkFooter 留白）
+>
 > 注意：原 `.reimburse-page` 的 `background: var(--color-canvas-soft)` 在 Mobile / Desktop 下都生效（保持原状），3 列布局内的 section 由各自组件的 card 背景提供白色。`.page-main` 在桌面端需把 `background: transparent` 显式覆盖（Mobile 下无背景）。
 
 - [ ] **Step 5: 验证 typecheck + build + test**
@@ -779,7 +858,7 @@ pnpm dev
     detail: cols.join(' / ')
   })
 
-  // 3. max-width 1320px
+  // 3. max-width 1320px（来自 --layout-3col-max-width）
   checks.push({ name: 'max-width 1320', ok: computed?.maxWidth === '1320px' })
 
   // 4. SideNav 存在且显示「日常报销」
@@ -815,7 +894,7 @@ pnpm dev
   const summaryStyle = summary ? getComputedStyle(summary) : null
   checks.push({
     name: 'SummaryPanel sticky',
-    ok: summaryStyle?.position === 'sticky' && summaryStyle?.top === '72px'
+    ok: summaryStyle?.position === 'sticky' && summaryStyle?.top === '72px'   // --layout-navbar-offset 解析后等于 72px
   })
 
   // 10. SummaryPanel 含提交按钮
@@ -830,12 +909,13 @@ pnpm dev
     ok: summary?.textContent?.includes('提交后将进入审批流程') || false
   })
 
-  // 12. BottomBar 桌面端隐藏
+  // 12. BottomBar 桌面端隐藏（仅断言 desktop 期望的 display: none；
+  //     原版的 `|| position === 'sticky'` 在 mobile 也成立、永远为真，弱校验已修复）
   const bottom = document.querySelector('.bottom-bar')
   const bottomStyle = bottom ? getComputedStyle(bottom) : null
   checks.push({
     name: 'BottomBar 桌面端不显示',
-    ok: bottomStyle?.display === 'none' || bottomStyle?.position === 'sticky'   // mobile sticky 行为
+    ok: bottomStyle?.display === 'none'
   })
 
   // 13. DingtalkFooter 存在
@@ -889,20 +969,20 @@ pnpm dev
 
 ```markdown
 
-## Plan C (v1.2) 日常报销桌面端重构 2026-07-08
+## Plan C (v1.2.1) 日常报销桌面端重构 2026-07-08
 **Plan**: 2026-07-08-expense-reimburse-desktop-redesign.md
 **Branch**: main
-**Final state**: 全部 7 tasks 完成，typecheck/test/build 三绿 + 1440×900 端到端 13/13 + Mobile 回归 4/4
+**Final state**: 全部 7 tasks 完成，typecheck/test/build 三绿 + 1440×900 端到端 13/13 + Mobile 回归 4/4 + v1.2.1 codex-review 12 项修复全部闭合
 
 ### Plan C Task Status
 | Task | 提交 | 状态 |
 |---|---|---|
-| 1 tokens.css 桌面端切换 | (本批次) | ✅ |
+| 1 tokens.css 桌面端切换 + 3 列 layout token | (本批次) | ✅ |
 | 2 NavBar 桌面端 blur | (本批次) | ✅ |
-| 3 SideNav 新组件 | (本批次) | ✅ |
-| 4 SummaryPanel 新组件 | (本批次) | ✅ |
+| 3 SideNav 新组件（v1.2.1 改 button/nav） | (本批次) | ✅ |
+| 4 SummaryPanel 新组件（v1.2.1 顶层 useDraftStorage / ink 色） | (本批次) | ✅ |
 | 5 BottomBar 桌面端废除 | (本批次) | ✅ |
-| 6 ExpenseReimburse 3 列组合 | (本批次) | ✅ |
+| 6 ExpenseReimburse 3 列组合（v1.2.1 用 layout token） | (本批次) | ✅ |
 | 7 综合验证 | (无新提交) | ✅ |
 
 ### 关键变更
@@ -910,6 +990,7 @@ pnpm dev
 - 改造 4 个文件：tokens.css / NavBar.vue / BottomBar.vue / ExpenseReimburse.vue
 - 桌面端 3 列布局：side-nav + 居中表单 + sticky 汇总
 - 视觉克制升级：blur NavBar / shadow s→m / 字号阶梯 / card-interactive
+- v1.2.1：合并 :root + dark 选择器防止 token 反转；新增 8 个 layout token；SideNav 改 button 元素 + landmark 语义
 - 不动：Mobile / store / composable / 35 个测试
 ```
 
@@ -942,7 +1023,7 @@ git commit -m "docs(sdd): v1.2 desktop redesign plan C complete"
 
 3. **Type consistency**：
    - ✅ SummaryPanel Props: `total: number, isValid: boolean` 在 Task 4 定义，Task 6 消费时签名一致
-   - ✅ SideNav 无 Props/Emits，Task 6 仅传 `class`
+   - ✅ SideNav 无 Props/Emits，Task 6 仅作为子组件挂载（无 class 透传）
    - ✅ `handleSubmit` 事件签名与 Task 4 emit 一致
 
 4. **并行可行性**：
@@ -954,6 +1035,13 @@ git commit -m "docs(sdd): v1.2 desktop redesign plan C complete"
 
 5. **风险覆盖**：
    - ✅ R1 backdrop-filter 兼容 → Task 2 加 `-webkit-` 前缀
-   - ✅ R2 grid 撑爆 → Task 6 用 `minmax(0, 720px)`
+   - ✅ R2 grid 撑爆 → Task 6 用 `minmax(0, var(--layout-3col-form-width))`
    - ✅ R3 token 切换影响测试 → 已确认 35 个测试不渲染组件
    - ✅ R4 SummaryPanel 草稿逻辑 → Task 4 复用 BottomBar 同套 store/storage/toast
+
+6. **v1.2.1 codex-review 修复（见顶部 Plan Revisions 表）**：
+   - ✅ P1 桌面端 token 深色模式反转 → Task 1 Step 3 合并选择器
+   - ✅ P2 SideNav 语义（href="#" / nav 嵌套）→ Task 3 Step 2
+   - ✅ P2 sticky top 与 3 列布局硬编码 → Task 1 Step 2 新增 token，Task 3/4/6 引用
+   - ✅ P2 useDraftStorage 重复实例化 → Task 4 Step 2 顶层复用
+   - ✅ P3 align-self 冗余 / 反向媒体查询 / 金额 error 色 / Check #12 弱校验 → 全部闭合
