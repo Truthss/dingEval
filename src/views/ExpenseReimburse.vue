@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ExpenseForm } from '@/composables/useExpenseForm'
+import { useToast } from '@/composables/useToast'
 import { fetchContacts } from '@/api/contact'
 import type { User } from '@/api/client'
 
@@ -20,6 +21,7 @@ import FlowPicker from '@/components/FlowPicker.vue'
 
 const form = inject<ExpenseForm>('expenseForm')!
 const router = useRouter()
+const { showToast } = useToast()
 
 const users = ref<User[]>([])
 const contactLoadError = ref(false)
@@ -128,15 +130,15 @@ function scheduleDraftSave(): void {
 
 function onSaveDraft(): void {
   form.saveDraft()
-  alert('已保存为草稿')
+  showToast('已保存为草稿', 'success')
 }
 
 async function onSubmit(): Promise<void> {
   const result = await form.submit()
   if (result.ok) {
-    alert(`已提交报销单 · 总额 ¥${form.totalAmount.value.toFixed(2)}`)
+    showToast(`已提交报销单 · 总额 ¥${form.totalAmount.value.toFixed(2)}`, 'success')
   } else {
-    alert(result.message)
+    showToast(result.message, 'error')
   }
 }
 
@@ -147,7 +149,7 @@ function onLogout(): void {
 }
 
 function notifyStub(msg: string): void {
-  window.alert(msg)
+  showToast(msg, 'info')
 }
 
 // Debounced auto-save: watch form state changes (setup scope, immediate)
