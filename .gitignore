@@ -33,3 +33,7 @@ lerna-debug.log*
 
 # superpowers scratch
 .superpowers/
+
+# Vercel env
+.env
+.env.production
