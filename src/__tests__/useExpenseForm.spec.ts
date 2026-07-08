@@ -46,3 +46,31 @@ describe('useExpenseForm - items', () => {
     expect(form.items.value[0].category).toBe('transport')
   })
 })
+
+describe('useExpenseForm - draft', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('saveDraft + restoreDraft roundtrip preserves state', () => {
+    const form = useExpenseForm()
+    form.relatedApplyId.value = 'apply-1'
+    form.updateItem(form.items.value[0].id, { amount: 200, category: 'transport' })
+    form.flow.payerId = 'u-payer'
+    form.saveDraft()
+    expect(localStorage.getItem('dingeval-expense-draft')).not.toBeNull()
+    const form2 = useExpenseForm()
+    const restored = form2.restoreDraft()
+    expect(restored).toBe(true)
+    expect(form2.relatedApplyId.value).toBe('apply-1')
+    expect(form2.items.value[0].amount).toBe(200)
+    expect(form2.items.value[0].category).toBe('transport')
+    expect(form2.flow.payerId).toBe('u-payer')
+  })
+
+  it('restoreDraft returns false when no draft exists', () => {
+    const form = useExpenseForm()
+    expect(form.restoreDraft()).toBe(false)
+    expect(form.items.value[0].amount).toBeNull()
+  })
+})

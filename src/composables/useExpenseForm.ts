@@ -1,6 +1,8 @@
 // src/composables/useExpenseForm.ts
 import { ref, reactive, computed, type Ref, type ComputedRef } from 'vue'
 
+const DRAFT_KEY = 'dingeval-expense-draft'
+
 export type Item = {
   id: string
   amount: number | null
@@ -68,6 +70,12 @@ export interface ExpenseForm {
   removeItem(id: string): void
   updateItem(id: string, patch: Partial<Item>): void
   clearError(index: number, key: 'amount' | 'occurredAt' | 'category'): void
+
+  // draft
+  toDraft(): unknown
+  saveDraft(): void
+  restoreDraft(): boolean
+  clearDraft(): void
 }
 
 export function useExpenseForm(): ExpenseForm {
@@ -120,6 +128,55 @@ export function useExpenseForm(): ExpenseForm {
     if (errors[index]) errors[index][key] = undefined
   }
 
+  function toDraft() {
+    return {
+      relatedApplyId: relatedApplyId.value,
+      items: items.value.map((it) => ({ ...it })),
+      businessFields: { ...businessFields },
+      notifyUserIds: [...notifyUserIds.value],
+      flow: { ...flow, ccUserIds: [...flow.ccUserIds] },
+      ownership: { ...ownership }
+    }
+  }
+
+  function saveDraft(): void {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(toDraft()))
+    } catch {
+      // quota / privacy mode - silently ignore
+    }
+  }
+
+  function restoreDraft(): boolean {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (!raw) return false
+      const d = JSON.parse(raw) as ReturnType<typeof toDraft>
+      relatedApplyId.value = d.relatedApplyId ?? null
+      if (Array.isArray(d.items) && d.items.length > 0) {
+        items.value = d.items.map((it) => ({ ...it }))
+      }
+      Object.assign(businessFields, d.businessFields)
+      notifyUserIds.value = d.notifyUserIds ?? []
+      flow.approverId = d.flow?.approverId ?? null
+      flow.payerId = d.flow?.payerId ?? null
+      flow.ccUserIds = d.flow?.ccUserIds ?? []
+      Object.assign(ownership, d.ownership)
+      return true
+    } catch {
+      clearDraft()
+      return false
+    }
+  }
+
+  function clearDraft(): void {
+    try {
+      localStorage.removeItem(DRAFT_KEY)
+    } catch {
+      // ignore
+    }
+  }
+
   return {
     relatedApplyId,
     items,
@@ -135,6 +192,10 @@ export function useExpenseForm(): ExpenseForm {
     addItem,
     removeItem,
     updateItem,
-    clearError
+    clearError,
+    toDraft,
+    saveDraft,
+    restoreDraft,
+    clearDraft
   }
 }
