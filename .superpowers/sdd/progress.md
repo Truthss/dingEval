@@ -171,3 +171,39 @@ Task 8: complete
 
 **Plan D Final State:** 9 commits (8 tasks + 1 fix), typecheck/test/build pass
 
+
+
+## Plan E (2026-07-08-expense-reimburse-desktop-rebuild) v1.3 desktop rebuild
+**Branch:** main
+**BASE:** e4890d9
+**Plan file:** docs/superpowers/plans/2026-07-08-expense-reimburse-desktop-rebuild.md
+
+Task 1: complete (commits e4890d9..9322add, review clean - clean up 52 files, 2 modified, src/api/ created)
+
+Task 2: complete (commits 9322add..623b54a, review clean - tokens.css rewritten to 105 lines, design system tokens intact)
+
+Task 3: complete (commits 623b54a..71bd14f, review clean - reset.css 397→64 lines, all global classes removed)
+
+Task 4: complete (commits 71bd14f..3927f71, review clean - api/client.ts TDD, 6 tests passed)
+
+Task 5: complete (commit 802aab0, review clean - api/contact.ts 32 lines, cache + search)
+
+Task 6: complete (commit e83b522, review clean - useExpenseForm skeleton TDD 4 tests)
+
+Task 7: complete (commit b23f497, review clean - draft mechanism, 6 tests passed)
+
+Task 8: complete (commit 1475500, review clean - validate(), 10 tests passed)
+
+Task 9: complete (commit 07e6098, review clean - submit() + 12 composable tests + 6 api tests = 18 total)
+
+Task 10: complete (commit d0ccca9, review clean - TextInput + MoneyInput)
+
+Task 11: complete (commit 5f3fd91, review clean - DatePicker + TextareaInput)
+
+Task 12: complete (commit ec430e3, review clean - SelectPicker popover)
+
+Task 13: complete (commit 2b72435, review clean - SectionCard + FormField + CapsuleButton + PersonChips)
+
+Task 14: complete (commit bd13994, review clean - AppNavBar + AppAnchorTabs + AppFooter)
+
+Task 15: complete (commit ed8d15b, review clean - RelatedApplyField + TotalCard, 32px error red per prd.md)
