@@ -138,6 +138,20 @@
 }
 
 /* ============================================================
+ * 桌面端元素字号微调
+ * 组件 mobile 块里用字面 font-size（如 BaseInput--sm 是 17px），
+ * vite.config 已用 propList: !font-size 跳过 font-size 的 vw 转换，
+ * 桌面端需要把 17px 显式覆盖为设计值 14px（DESIGN.md body）。
+ * ============================================================ */
+@media (min-width: 960px) {
+  .base-input--sm,
+  .base-textarea--sm,
+  .picker-trigger--sm {
+    font-size: 14px;
+  }
+}
+
+/* ============================================================
  * 深色模式（按需启用：html[data-theme="dark"]）
  * ============================================================ */
 html[data-theme='dark'] {
