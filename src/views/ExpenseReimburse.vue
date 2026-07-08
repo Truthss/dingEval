@@ -86,16 +86,35 @@ function onJump(id: string): void {
   router.replace({ hash: `#${id}` })
 }
 
-function onScroll(): void {
+let observer: IntersectionObserver | null = null
+
+function setupIntersectionObserver(): void {
   const ids = anchors.value.map((a) => a.id)
+  observer = new IntersectionObserver(
+    (entries) => {
+      // Pick the entry whose top is closest to the activation line
+      let bestId: string | null = null
+      let bestTop = -Infinity
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        const top = entry.boundingClientRect.top
+        if (top < bestTop) {
+          bestTop = top
+          bestId = (entry.target as HTMLElement).id
+        }
+      }
+      if (bestId) activeId.value = bestId
+    },
+    {
+      // Section is "active" when its top is within the upper 72px band
+      // and the rest of the viewport (50% bottom) is the activation zone
+      rootMargin: '-72px 0px -50% 0px',
+      threshold: 0
+    }
+  )
   for (const id of ids) {
     const el = document.getElementById(id)
-    if (!el) continue
-    const rect = el.getBoundingClientRect()
-    if (rect.top <= 120 && rect.bottom > 120) {
-      activeId.value = id
-      break
-    }
+    if (el) observer.observe(el)
   }
 }
 
@@ -163,13 +182,13 @@ onMounted(async () => {
     draftPromptVisible.value = true
   }
 
-  // Scroll spy
-  window.addEventListener('scroll', onScroll, { passive: true })
+  // Scroll spy via IntersectionObserver
+  setupIntersectionObserver()
 })
 
 onBeforeUnmount(() => {
   stopWatch()
-  window.removeEventListener('scroll', onScroll)
+  if (observer) observer.disconnect()
   if (draftDebounce.value) window.clearTimeout(draftDebounce.value)
 })
 
