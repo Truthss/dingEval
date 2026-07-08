@@ -6,6 +6,8 @@ import { useDraftRestore } from '@/composables/useDraftRestore'
 import { useFormValidation } from '@/composables/useFormValidation'
 
 import NavBar from '@/components/expense/NavBar.vue'
+import SideNav from '@/components/expense/SideNav.vue'
+import SummaryPanel from '@/components/expense/SummaryPanel.vue'
 import RelatedApply from '@/components/expense/RelatedApply.vue'
 import TotalCard from '@/components/expense/TotalCard.vue'
 import ItemCard from '@/components/expense/ItemCard.vue'
@@ -16,8 +18,6 @@ import NotifySection from '@/components/expense/NotifySection.vue'
 import FlowSection from '@/components/expense/FlowSection.vue'
 import BottomBar from '@/components/expense/BottomBar.vue'
 import DingtalkFooter from '@/components/expense/DingtalkFooter.vue'
-import SideNav from '@/components/expense/SideNav.vue'
-import SummaryPanel from '@/components/expense/SummaryPanel.vue'
 
 const expense = useExpenseStore()
 const toast = useToast()
@@ -97,6 +97,25 @@ function handleSubmit() {
       message: `已提交报销单 · 总额 ¥${expense.totalAmount.toFixed(2)}`,
       type: 'success'
     })
+    // 发钉钉工作通知
+    if (expense.approver || expense.payer) {
+      const notifyUserIds: string[] = []
+      if (expense.approver) notifyUserIds.push(expense.approver)
+      if (expense.payer) notifyUserIds.push(expense.payer)
+      expense.cc.forEach((uid) => { if (uid) notifyUserIds.push(uid) })
+      fetch('/api/dd-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          useridList: notifyUserIds,
+          title: '报销单已提交',
+          content: `**${expense.owner}** 提交了日常报销单，金额 **¥${expense.totalAmount.toFixed(2)}**`,
+          jumpUrl: location.origin + location.pathname
+        })
+      }).catch(() => {
+        // 通知发送失败不影响提单结果
+      })
+    }
     expense.clearDraft()
     for (const key of Object.keys(errors)) delete errors[Number(key)]
     payerError.value = false
@@ -128,7 +147,7 @@ function setItemCardRef(el: unknown, index: number) {
     <NavBar />
 
     <div class="reimburse-layout">
-      <SideNav />
+      <SideNav class="reimburse-layout__nav" />
 
       <main class="page-main">
         <RelatedApply />
@@ -164,16 +183,17 @@ function setItemCardRef(el: unknown, index: number) {
         <NotifySection />
 
         <FlowSection ref="flowSectionRef" />
-
-        <DingtalkFooter />
       </main>
 
       <SummaryPanel
+        class="reimburse-layout__summary"
         :total="expense.totalAmount"
         :is-valid="expense.isValid"
         @submit="handleSubmit"
       />
     </div>
+
+    <DingtalkFooter class="reimburse-page__footer" />
 
     <BottomBar :is-valid="expense.isValid" @submit="handleSubmit" />
   </div>
@@ -207,26 +227,40 @@ function setItemCardRef(el: unknown, index: number) {
   cursor: pointer;
   transition: background 0.15s;
   border: 0;
+  font-family: inherit;
 }
 .add-detail-card:hover { background: rgba(0, 127, 255, 0.04); }
 
 @media (min-width: 960px) {
   .reimburse-layout {
-    display: grid;
-    grid-template-columns:
-      var(--layout-3col-nav-width)
-      minmax(0, var(--layout-3col-form-width))
-      var(--layout-3col-summary-width);
-    gap: var(--layout-3col-gap);
-    align-items: start;             /* 统一管理 sticky 子元素的对齐 */
     max-width: var(--layout-3col-max-width);
     margin: 0 auto;
-    padding: var(--space-lg) var(--layout-3col-padding-x) var(--layout-3col-padding-bottom);
+    padding: 24px var(--layout-3col-padding-x) var(--layout-3col-padding-bottom);
+    display: grid;
+    grid-template-columns: var(--layout-3col-nav-width) minmax(0, var(--layout-3col-form-width)) var(--layout-3col-summary-width);
+    gap: var(--layout-3col-gap);
+    align-items: start;
   }
-  /* 移除重复的 align-self: start：sticky 组件自身已管理 top offset，
-     grid 容器只需要 align-items: start，子元素按内容顶部对齐 */
 
-  .page-main { gap: 16px; padding: 0; background: transparent; }
-  .add-detail-card { margin: 0; }
+  .reimburse-layout__nav,
+  .reimburse-layout__summary {
+    align-self: start;
+  }
+
+  .page-main {
+    gap: 16px;
+    padding: 0;
+    background: transparent;
+    width: 100%;
+  }
+
+  .reimburse-page__footer {
+    margin: 0 auto;
+    max-width: var(--layout-3col-max-width);
+  }
+
+  .add-detail-card {
+    margin: 0;
+  }
 }
 </style>
