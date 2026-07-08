@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, onMounted } from 'vue'
 import DingIcon from '../base/DingIcon.vue'
 import { useActionSheet } from '@/composables/useActionSheet'
 import { useExpenseStore } from '@/stores/expense'
-import { persons, findPersonDisplay } from '@/mocks/persons'
+import { useContactList } from '@/composables/useContactList'
 
 interface Props {
   payerRef?: Ref<HTMLElement | null>
@@ -13,6 +13,8 @@ withDefaults(defineProps<Props>(), { payerRef: undefined })
 
 const expense = useExpenseStore()
 const sheet = useActionSheet()
+const contacts = useContactList()
+onMounted(() => contacts.load())
 
 const approverRowRef = ref<HTMLElement | null>(null)
 const payerRowRef = ref<HTMLElement | null>(null)
@@ -23,7 +25,7 @@ defineExpose({ approverRowRef, payerRowRef, ccRowRef })
 function openApprover() {
   sheet.open({
     title: '选择审批人',
-    options: persons,
+    options: contacts.users.value,
     current: expense.approver,
     onSelect: (val) => {
       if (val) expense.approver = val
@@ -34,7 +36,7 @@ function openApprover() {
 function openPayer() {
   sheet.open({
     title: '选择付款人',
-    options: persons,
+    options: contacts.users.value,
     current: expense.payer,
     onSelect: (val) => {
       if (val) expense.payer = val
@@ -43,7 +45,7 @@ function openPayer() {
 }
 
 function openCc() {
-  const available = persons.filter((p) => !expense.cc.includes(p.value))
+  const available = contacts.users.value.filter((p) => !expense.cc.includes(p.value))
   if (available.length === 0) return
   sheet.open({
     title: '选择抄送人',
@@ -61,7 +63,7 @@ function removeCc(value: string) {
 }
 
 function ccLabel(value: string): string {
-  return persons.find((p) => p.value === value)?.label ?? value
+  return contacts.users.value.find((p) => p.value === value)?.label ?? value
 }
 </script>
 
@@ -75,7 +77,7 @@ function ccLabel(value: string): string {
         <span class="dot" />
         <div class="info">
           <div class="name">审批人</div>
-          <div class="meta">{{ findPersonDisplay(expense.approver) || '请选择审批人' }}</div>
+          <div class="meta">{{ contacts.findPersonDisplay(expense.approver) || '请选择审批人' }}</div>
         </div>
         <button type="button" class="add-btn-icon" aria-label="选择审批人" @click="openApprover">
           <DingIcon name="add" :size="16" />
@@ -89,7 +91,7 @@ function ccLabel(value: string): string {
             <span>付款人</span>
             <span class="req">*</span>
           </div>
-          <div class="meta">{{ findPersonDisplay(expense.payer) || '请选择' }}</div>
+          <div class="meta">{{ contacts.findPersonDisplay(expense.payer) || '请选择' }}</div>
         </div>
         <button type="button" class="add-btn-icon" aria-label="选择付款人" @click="openPayer">
           <DingIcon name="add" :size="16" />
