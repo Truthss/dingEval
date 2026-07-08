@@ -113,3 +113,45 @@ describe('useExpenseForm - draft', () => {
     expect(form.items.value[0].amount).toBeNull()
   })
 })
+
+import { ddNotify } from '@/api/client'
+
+vi.mock('@/api/client', () => ({
+  ddNotify: vi.fn()
+}))
+
+describe('useExpenseForm - submit', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.mocked(ddNotify).mockReset()
+  })
+
+  it('submit succeeds: calls ddNotify and clears draft', async () => {
+    const form = useExpenseForm()
+    form.updateItem(form.items.value[0].id, { amount: 200, occurredAt: '2026-07-08', category: 'transport' })
+    form.flow.payerId = 'u-payer'
+
+    vi.mocked(ddNotify).mockResolvedValueOnce()
+
+    const result = await form.submit()
+    expect(result).toEqual({ ok: true })
+    expect(ddNotify).toHaveBeenCalledWith(expect.objectContaining({
+      title: '报销单已提交',
+      content: expect.stringContaining('¥200.00')
+    }))
+    expect(localStorage.getItem('dingeval-expense-draft')).toBeNull()
+  })
+
+  it('submit fails: keeps draft on network error', async () => {
+    const form = useExpenseForm()
+    form.updateItem(form.items.value[0].id, { amount: 200, occurredAt: '2026-07-08', category: 'transport' })
+    form.flow.payerId = 'u-payer'
+    form.saveDraft()
+
+    vi.mocked(ddNotify).mockRejectedValueOnce(new Error('network'))
+
+    const result = await form.submit()
+    expect(result.ok).toBe(false)
+    expect(localStorage.getItem('dingeval-expense-draft')).not.toBeNull()
+  })
+})

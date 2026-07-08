@@ -1,5 +1,6 @@
 // src/composables/useExpenseForm.ts
 import { ref, reactive, computed, type Ref, type ComputedRef } from 'vue'
+import { ddNotify } from '@/api/client'
 
 const DRAFT_KEY = 'dingeval-expense-draft'
 
@@ -79,11 +80,14 @@ export interface ExpenseForm {
 
   // validation
   validate(): ValidationResult
+  submit(): Promise<SubmitResult>
 }
 
 export type ValidationResult =
   | { ok: true }
   | { ok: false; errors: ItemErrors; payerMissing: boolean }
+
+export type SubmitResult = { ok: true } | { ok: false; message: string }
 
 export function useExpenseForm(): ExpenseForm {
   const relatedApplyId = ref<string | null>(null)
@@ -204,6 +208,35 @@ export function useExpenseForm(): ExpenseForm {
     return { ok: false, errors: errs, payerMissing }
   }
 
+  async function submit(): Promise<SubmitResult> {
+    const result = validate()
+    if (!result.ok) {
+      // copy errors into reactive map so UI can show them
+      for (const k of Object.keys(errors)) delete errors[Number(k)]
+      Object.assign(errors, result.errors)
+      return { ok: false, message: '请补全必填项后再提交' }
+    }
+    submitting.value = true
+    try {
+      const useridList: string[] = []
+      if (flow.approverId) useridList.push(flow.approverId)
+      if (flow.payerId) useridList.push(flow.payerId)
+      flow.ccUserIds.forEach((u) => u && useridList.push(u))
+      await ddNotify({
+        useridList,
+        title: '报销单已提交',
+        content: `**${ownership.owner}** 提交了日常报销单，金额 **¥${totalAmount.value.toFixed(2)}**`,
+        jumpUrl: location.origin + location.pathname
+      })
+      clearDraft()
+      return { ok: true }
+    } catch (e) {
+      return { ok: false, message: e instanceof Error ? e.message : '提交失败' }
+    } finally {
+      submitting.value = false
+    }
+  }
+
   return {
     relatedApplyId,
     items,
@@ -224,6 +257,7 @@ export function useExpenseForm(): ExpenseForm {
     saveDraft,
     restoreDraft,
     clearDraft,
-    validate
+    validate,
+    submit
   }
 }
