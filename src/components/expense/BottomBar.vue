@@ -61,28 +61,8 @@ function submit() {
 .bottom-bar__inner :deep(.base-btn--secondary) { flex: 0.8; }
 .bottom-bar__inner :deep(.base-btn--primary) { flex: 1; }
 
-/* 桌面端：右下角浮动面板，上下堆叠两按钮 */
+/* 桌面端隐藏：操作面板由 SummaryPanel 接管 */
 @media (min-width: 960px) {
-  .bottom-bar {
-    position: fixed;
-    right: 32px;
-    bottom: 32px;
-    left: auto;
-    width: 144px;
-    padding: 12px;
-    background: var(--color-canvas);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-m);
-  }
-  .bottom-bar__inner {
-    flex-direction: column;
-    gap: 8px;
-  }
-  .bottom-bar__inner :deep(.base-btn--secondary),
-  .bottom-bar__inner :deep(.base-btn--primary) {
-    flex: none;
-    width: 100%;
-  }
+  .bottom-bar { display: none; }
 }
 </style>
