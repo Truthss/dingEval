@@ -19,6 +19,8 @@ const open = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
 const popoverRef = ref<HTMLElement | null>(null)
 const popoverStyle = ref<Record<string, string>>({})
+const search = ref('')
+const searchDebounce = ref<number | null>(null)
 
 const display = computed(() => {
   if (props.multiple) {
@@ -39,6 +41,21 @@ const isPlaceholder = computed(() => {
   }
   return props.modelValue == null
 })
+
+const filteredOptions = computed(() => {
+  if (!props.multiple) return props.options
+  const q = search.value.trim().toLowerCase()
+  if (!q) return props.options
+  return props.options.filter((o) => o.label.toLowerCase().includes(q))
+})
+
+function onSearchInput(ev: Event): void {
+  const value = (ev.target as HTMLInputElement).value
+  if (searchDebounce.value) window.clearTimeout(searchDebounce.value)
+  searchDebounce.value = window.setTimeout(() => {
+    search.value = value
+  }, 200)
+}
 
 function isSelected(v: string): boolean {
   if (props.multiple) {
@@ -114,11 +131,18 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onClickOutside)
   document.removeEventListener('keydown', onEsc)
+  if (searchDebounce.value) window.clearTimeout(searchDebounce.value)
 })
 
 watch(open, (v) => {
   if (v) {
     setTimeout(() => positionPopover(), 0)
+  } else {
+    search.value = ''
+    if (searchDebounce.value) {
+      window.clearTimeout(searchDebounce.value)
+      searchDebounce.value = null
+    }
   }
 })
 </script>
@@ -149,8 +173,18 @@ watch(open, (v) => {
         role="listbox"
         :aria-multiselectable="multiple"
       >
+        <div v-if="multiple" class="select-picker__search">
+          <input
+            type="text"
+            class="select-picker__search-input"
+            placeholder="搜索..."
+            aria-label="搜索选项"
+            @input="onSearchInput"
+            @mousedown.stop
+          />
+        </div>
         <div
-          v-for="opt in options"
+          v-for="opt in filteredOptions"
           :key="opt.value"
           class="select-picker__option"
           :class="{ 'is-selected': isSelected(opt.value) }"
@@ -165,6 +199,10 @@ watch(open, (v) => {
           </span>
           <span>{{ opt.label }}</span>
         </div>
+        <div
+          v-if="multiple && filteredOptions.length === 0"
+          class="select-picker__empty"
+        >无匹配项</div>
       </div>
     </Teleport>
   </div>
@@ -249,6 +287,41 @@ watch(open, (v) => {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-m);
   padding: 4px;
+}
+
+.select-picker__search {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  padding: 4px;
+  border-bottom: 1px solid var(--color-hairline);
+  margin-bottom: 4px;
+}
+
+.select-picker__search-input {
+  width: 100%;
+  height: var(--layout-input-height);
+  padding: 0 12px;
+  font-size: var(--font-size-body);
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-xs);
+  outline: none;
+  font-family: var(--font-family-base);
+  box-sizing: border-box;
+}
+
+.select-picker__search-input:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 127, 255, 0.12);
+}
+
+.select-picker__empty {
+  padding: 12px;
+  text-align: center;
+  font-size: var(--font-size-footnote);
+  color: var(--color-mute);
 }
 
 .select-picker__option {
