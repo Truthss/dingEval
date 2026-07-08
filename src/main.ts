@@ -20,4 +20,9 @@ if (code) {
   })
 }
 
+// JSAPI 配置（无论是否免登都能做）
+import('./composables/useDingtalkJsapi').then(({ configDingtalkJsapi }) => {
+  configDingtalkJsapi()
+})
+
 app.mount('#app')
