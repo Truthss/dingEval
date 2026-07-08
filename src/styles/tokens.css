@@ -1,17 +1,19 @@
 /* ============================================================
  * 钉钉设计系统 Token（来源 DESIGN.md · dingtalk_common 主题）
- * 移动端基础视口：375px（与 postcss-px-to-viewport 配置一致）
- * 此处所有 px 数值都将由 postcss 自动转换为 vw
+ * 桌面端 v1.3：仅支持 1440×900 单尺寸，不做 viewport 适配
+ * 历史：移动端 token 已删除，需要时参见 git history
  * ============================================================ */
 
 :root {
   /* ---------- Brand & Accent ---------- */
   --color-primary: #007FFF;
   --color-on-primary: #FFFFFF;
+  --color-primary-hover: #0075EB;
+  --color-primary-press: #006AD6;
   --color-secondary: #5AC8FA;
   --color-accent: #00B042;
 
-  /* ---------- Surface & Background（浅色） ---------- */
+  /* ---------- Surface & Background ---------- */
   --color-canvas: #FFFFFF;
   --color-canvas-soft: #F2F2F6;
   --color-surface: #FFFFFF;
@@ -34,22 +36,20 @@
   --color-error: #FF5219;
   --color-warning: #FF9200;
 
-  /* ---------- Primary Interaction ---------- */
-  --color-primary-hover: #0075EB;
-  --color-primary-press: #006AD6;
-
-  /* ---------- Typography（移动端） ---------- */
+  /* ---------- Typography ---------- */
   --font-family-base: "PingFang SC", "SF Pro Text", "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
   --font-family-mono: "SFMono-Regular", Menlo, Consolas, monospace;
 
   --font-size-tiny: 10px;
-  --font-size-footnote: 12px;
-  --font-size-description: 14px;
-  --font-size-subhead: 15px;
-  --font-size-body: 17px;
-  --font-size-h2: 18px;
-  --font-size-h1: 20px;
-  --font-size-large-title: 24px;
+  --font-size-caption: 12px;
+  --font-size-footnote: 13px;
+  --font-size-body: 14px;
+  --font-size-h4: 15px;
+  --font-size-h3: 16px;
+  --font-size-h2: 20px;
+  --font-size-h1: 24px;
+  --font-size-large-title: 32px;
+  --font-size-display: 44px;
 
   --line-height-tight: 1.2;
   --line-height-snug: 1.4;
@@ -69,7 +69,7 @@
   --radius-xl: 16px;
   --radius-full: 9999px;
 
-  /* ---------- Spacing（4pt 基础） ---------- */
+  /* ---------- Spacing (4pt base) ---------- */
   --space-xxs: 4px;
   --space-xs: 8px;
   --space-sm: 12px;
@@ -78,92 +78,27 @@
   --space-xl: 32px;
   --space-2xl: 40px;
   --space-3xl: 64px;
+  --space-section: 120px;
 
   /* ---------- Shadow ---------- */
-  --shadow-s: 0px 1px 4px rgba(0, 0, 0, 0.16);
-  --shadow-m: 0px 8px 24px rgba(0, 0, 0, 0.16);
-  --shadow-l: 0px 12px 32px rgba(0, 0, 0, 0.24);
+  --shadow-s: 0px 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-m: 0px 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-l: 0px 12px 32px rgba(0, 0, 0, 0.16);
 
   /* ---------- Z-Index ---------- */
   --z-base: 1;
   --z-sticky: 100;
   --z-fixed: 200;
+  --z-popover: 800;
   --z-modal: 1000;
   --z-toast: 2000;
 
-  /* ---------- Breakpoints ---------- */
-  --bp-mobile-max: 959.98px;
-  --bp-desktop: 960px;
-
-  /* ---------- Desktop Layout ---------- */
-  --layout-max-width: 1200px;
-  --layout-padding-x: 32px;
-  --layout-grid-gap-col: 24px;
-  --layout-grid-gap-row: 16px;
-
-  /* ---------- 3 列布局（v1.2 桌面端重构） ---------- */
-  --layout-navbar-offset: 72px;          /* NavBar 48 + 间距 24 */
-  --layout-3col-max-width: 1320px;       /* 240 + 24 + 720 + 24 + 280 + 32 (padding) */
-  --layout-3col-gap: 24px;               /* 居中表单与左右两列的间距 */
-  --layout-3col-nav-width: 240px;        /* SideNav 列宽 */
-  --layout-3col-form-width: 720px;       /* 居中表单列宽（minmax 上限） */
-  --layout-3col-summary-width: 280px;    /* SummaryPanel 列宽 */
-  --layout-3col-padding-x: 16px;         /* 容器水平内边距 */
-  --layout-3col-padding-bottom: 96px;    /* 容器底部内边距（沿用 v1.1 的 96，给 DingtalkFooter 留白） */
-}
-
-/* ============================================================
- * 桌面端 Token 切换（DESIGN.md 桌面端字号 + 阴影分级）
- * 仅在 ≥960px 生效，Mobile 值不变
- *
- * 关键：`:root, html[data-theme='dark']` 合并选择器。
- * 若只写在 `:root` 内，dark 块（特异性 0,1,1 > :root 的 0,0,1）
- * 会"赢者通吃"，把 dark 模式下 desktop 字号反转回 mobile 值。
- * 合并选择器后两者同时被覆盖。
- * ============================================================ */
-@media (min-width: 960px) {
-  :root,
-  html[data-theme='dark'] {
-    /* 桌面端字号阶梯（DESIGN.md Typography Hierarchy） */
-    --font-size-body: 14px;          /* Mobile 17 → Desktop 14 */
-    --font-size-h1: 24px;            /* Mobile 20 → Desktop 24 */
-    --font-size-h2: 20px;            /* Mobile 18 → Desktop 20 */
-    --font-size-description: 13px;   /* Mobile 14 → Desktop 13 */
-    /* --font-size-subhead 保持 15px 不变 */
-
-    /* 桌面端阴影分级（适配大屏感知，y 偏移稍增 + 透明度稍降） */
-    --shadow-s: 0px 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-m: 0px 8px 24px rgba(0, 0, 0, 0.12);
-  }
-}
-
-/* ============================================================
- * 桌面端元素字号微调
- * 组件 mobile 块里用字面 font-size（如 BaseInput--sm 是 17px），
- * vite.config 已用 propList: !font-size 跳过 font-size 的 vw 转换，
- * 桌面端需要把 17px 显式覆盖为设计值 14px（DESIGN.md body）。
- * ============================================================ */
-@media (min-width: 960px) {
-  .base-input--sm,
-  .base-textarea--sm,
-  .picker-trigger--sm {
-    font-size: 14px;
-  }
-}
-
-/* ============================================================
- * 深色模式（按需启用：html[data-theme="dark"]）
- * ============================================================ */
-html[data-theme='dark'] {
-  --color-canvas: #111213;
-  --color-canvas-soft: #1C1D1F;
-  --color-surface: #1C1D1F;
-  --color-ink: rgba(255, 255, 255, 0.8);
-  --color-body: rgba(255, 255, 255, 0.5);
-  --color-mute: rgba(255, 255, 255, 0.2);
-  --color-stamp: rgba(255, 255, 255, 0.03);
-  --color-primary: #3080DB;
-  --color-link: #3E88D6;
-  --color-hairline: rgba(255, 255, 255, 0.08);
-  --color-hairline-strong: rgba(255, 255, 255, 0.16);
+  /* ---------- Desktop Layout (1440×900) ---------- */
+  --layout-page-padding: 40px;
+  --layout-form-max-width: 720px;
+  --layout-navbar-height: 64px;
+  --layout-tabs-height: 48px;
+  --layout-input-height: 36px;
+  --layout-button-height: 40px;
+  --layout-card-padding: 24px;
 }
