@@ -37,3 +37,10 @@ lerna-debug.log*
 # Vercel env
 .env
 .env.production
+
+# Python
+__pycache__/
+*.pyc
+
+# Skills / tooling
+.od-skills/

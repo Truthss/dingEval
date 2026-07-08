@@ -34,8 +34,14 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 5173,
-    open: false
+    port: 5174,
+    open: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5173',
+        changeOrigin: true
+      }
+    }
   },
   build: {
     target: 'es2019',
