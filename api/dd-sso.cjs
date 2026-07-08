@@ -1,16 +1,31 @@
 // api/dd-sso.cjs
 const https = require('node:https')
 const ddConfig = require('./_lib/dd-config.cjs')
+const { getAccessToken } = require('./_lib/dd-token.cjs')
 
-function httpsGet(url) {
+function httpsPost(url, data) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = ''
-      res.on('data', (chunk) => (data += chunk))
+    const body = JSON.stringify(data)
+    const urlObj = new URL(url)
+    const options = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + urlObj.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    }
+    const req = https.request(options, (res) => {
+      let resp = ''
+      res.on('data', (chunk) => (resp += chunk))
       res.on('end', () => {
-        try { resolve(JSON.parse(data)) } catch (e) { reject(e) }
+        try { resolve(JSON.parse(resp)) } catch (e) { reject(e) }
       })
-    }).on('error', reject)
+    })
+    req.on('error', reject)
+    req.write(body)
+    req.end()
   })
 }
 
@@ -27,28 +42,23 @@ module.exports = async (req, res) => {
       return
     }
 
-    // 1. 用 SSOSecret 换 ssotoken
-    const tokenUrl = `https://oapi.dingtalk.com/sso/gettoken?corpid=${ddConfig.corpId}&corpsecret=${ddConfig.ssoSecret}`
-    const tokenBody = await httpsGet(tokenUrl)
-    if (tokenBody.errcode !== 0) {
-      res.status(500).json({ errcode: tokenBody.errcode, errmsg: tokenBody.errmsg })
-      return
-    }
-    const ssotoken = tokenBody.access_token
+    const accessToken = await getAccessToken()
+    const userBody = await httpsPost(
+      `https://oapi.dingtalk.com/topapi/v2/user/getuserinfo?access_token=${accessToken}`,
+      { code }
+    )
 
-    // 2. 用 ssotoken + code 换 userid
-    const userUrl = `https://oapi.dingtalk.com/sso/getuserinfo?access_token=${ssotoken}&code=${code}`
-    const userBody = await httpsGet(userUrl)
     if (userBody.errcode !== 0) {
       res.status(500).json({ errcode: userBody.errcode, errmsg: userBody.errmsg })
       return
     }
 
-    // 3. 设置 Cookie（可选，简化实现直接返回 userid）
-    res.setHeader('Set-Cookie', `dd_user=${userBody.userid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`)
+    const user = userBody.result || {}
+
+    res.setHeader('Set-Cookie', `dd_user=${user.userid}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`)
     res.status(200).json({
-      userid: userBody.userid,
-      name: userBody.name || '',
+      userid: user.userid,
+      name: user.name || '',
       corpId: ddConfig.corpId
     })
   } catch (err) {
