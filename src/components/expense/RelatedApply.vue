@@ -22,4 +22,10 @@ function onClick() {
   margin: 12px 12px 0;
   display: flex;
 }
+
+@media (min-width: 960px) {
+  .related-apply-wrapper {
+    margin: 0;
+  }
+}
 </style>

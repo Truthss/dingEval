@@ -37,4 +37,10 @@
   margin-top: 4px;
   letter-spacing: 0.04em;
 }
+
+@media (min-width: 960px) {
+  .ding-footer {
+    padding: 24px 0 16px;
+  }
+}
 </style>

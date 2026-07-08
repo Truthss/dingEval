@@ -93,12 +93,20 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
+.item-card {
+  margin: 12px 12px 0;
+}
+
 .item-card__grid {
   display: flex;
   flex-direction: column;
 }
 
 @media (min-width: 960px) {
+  .item-card {
+    margin: 0;
+  }
+
   .item-card__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

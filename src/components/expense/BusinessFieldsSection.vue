@@ -43,6 +43,9 @@ const expense = useExpenseStore()
     grid-template-columns: 1fr 1fr;
     column-gap: var(--layout-grid-gap-col);
     row-gap: 0;
+    margin: 0;
+    box-shadow: none;
+    background: transparent;
   }
 
   .business-grid__span-2 {

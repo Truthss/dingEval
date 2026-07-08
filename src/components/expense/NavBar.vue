@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import DingIcon from '../base/DingIcon.vue'
-import BaseButton from '../base/BaseButton.vue'
 import { useToast } from '@/composables/useToast'
 
 const emit = defineEmits<{ (e: 'back'): void }>()
 
 const toast = useToast()
+const activeTab = ref<'submit' | 'history'>('submit')
 
 function goBack() {
   const router = useRouter()
@@ -29,14 +30,48 @@ function showUnsupported() {
       <button type="button" class="nav-bar__back" aria-label="返回" @click="goBack">
         <DingIcon name="arrow-back" :size="22" />
       </button>
+
+      <!-- Mobile title -->
       <h1 class="nav-bar__title">日常报销</h1>
-      <div class="nav-bar__actions">
-        <BaseButton variant="ghost" size="sm" class="nav-bar__action" @click="showUnsupported">
-          <DingIcon name="search" :size="18" />
-        </BaseButton>
-        <BaseButton variant="ghost" size="sm" class="nav-bar__action" @click="showUnsupported">
-          <DingIcon name="help" :size="18" />
-        </BaseButton>
+
+      <!-- Desktop: tabs + toolbar -->
+      <div class="nav-bar__desktop">
+        <div class="nav-bar__tabs">
+          <button
+            type="button"
+            class="nav-bar__tab"
+            :class="{ 'nav-bar__tab--active': activeTab === 'submit' }"
+            @click="activeTab = 'submit'"
+          >发起审批</button>
+          <button
+            type="button"
+            class="nav-bar__tab"
+            :class="{ 'nav-bar__tab--active': activeTab === 'history' }"
+            @click="activeTab = 'history'"
+          >历史记录</button>
+        </div>
+        <div class="nav-bar__toolbar">
+          <button type="button" class="nav-bar__toolbar-btn" @click="showUnsupported">
+            <DingIcon name="assessment" :size="16" />
+            <span>报表</span>
+          </button>
+          <button type="button" class="nav-bar__toolbar-btn" @click="showUnsupported">
+            <DingIcon name="drafts" :size="16" />
+            <span>草稿箱(0)</span>
+          </button>
+          <button type="button" class="nav-bar__toolbar-btn" @click="showUnsupported">
+            <DingIcon name="edit" :size="16" />
+            <span>编辑</span>
+          </button>
+          <button type="button" class="nav-bar__toolbar-btn" @click="showUnsupported">
+            <DingIcon name="person-add" :size="16" />
+            <span>添加到群</span>
+          </button>
+          <button type="button" class="nav-bar__toolbar-btn" @click="showUnsupported">
+            <DingIcon name="share" :size="16" />
+            <span>分享</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -85,17 +120,12 @@ function showUnsupported() {
   margin: 0;
 }
 
-.nav-bar__actions {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
+/* Desktop-only elements - hidden on mobile */
+.nav-bar__desktop {
   display: none;
-  gap: 4px;
 }
 
 @media (min-width: 960px) {
-  /* 毛玻璃背景（DESIGN.md blur.default-light 衍生） */
   .nav-bar {
     background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(10px);
@@ -103,8 +133,95 @@ function showUnsupported() {
     border-bottom: 1px solid var(--color-hairline);
     box-shadow: none;
   }
-  /* H2 桌面端字号（继承 Task 1 token） */
-  .nav-bar__title { font-size: var(--font-size-h2); }   /* 20px */
-  .nav-bar__actions { display: flex; }
+
+  .nav-bar__inner {
+    max-width: var(--layout-3col-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    justify-content: flex-start;
+    position: static;
+  }
+
+  .nav-bar__back {
+    position: static;
+    transform: none;
+    margin-right: 4px;
+  }
+
+  .nav-bar__title {
+    display: none;
+  }
+
+  .nav-bar__desktop {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    margin-left: 4px;
+  }
+
+  .nav-bar__tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .nav-bar__tab {
+    position: relative;
+    height: 56px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--color-body);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-bar__tab:hover { color: var(--color-ink); }
+  .nav-bar__tab--active {
+    color: var(--color-primary);
+  }
+  .nav-bar__tab--active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: var(--color-primary);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .nav-bar__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .nav-bar__toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    color: var(--color-body);
+    font-size: 13px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .nav-bar__toolbar-btn:hover {
+    background: rgba(126, 134, 142, 0.08);
+    color: var(--color-ink);
+  }
 }
 </style>

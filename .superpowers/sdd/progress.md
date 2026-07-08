@@ -144,3 +144,30 @@
 ### 计划偏差
 - v1.2.2 Fix（commit dd46d31）：补 v1.2.1 漏掉的 font-size vw 缩放问题
 
+
+## Plan D (2026-07-08-vercel-dingtalk-integration)
+**Branch:** main
+**BASE:** 5003f2b
+**Plan file:** docs/superpowers/plans/2026-07-08-vercel-dingtalk-integration.md
+
+
+Task 0: complete (commits 5003f2b..0c79920, review clean)
+
+Task 1: complete (commits 0c79920..3776dc5, review clean - .cjs naming already approved in Task 0 review)
+
+Task 2: complete (commits 3776dc5..cc94633, review clean)
+
+Task 3: complete (commits cc94633..031d6ca, review clean)
+
+Task 4: complete (commit cb8f2c0, vercel.json)
+
+Task 5: complete (commits cb8f2c0..1296983, review clean)
+
+Task 6: complete (commit 26032bb, review concern: commit includes unrelated import reordering - noted for final review)
+
+Task 7: complete (commits 26032bb..44e649d, review clean)
+
+Task 8: complete
+
+**Plan D Final State:** 9 commits (8 tasks + 1 fix), typecheck/test/build pass
+
