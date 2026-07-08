@@ -95,7 +95,16 @@ function showUnsupported() {
 }
 
 @media (min-width: 960px) {
-  .nav-bar__title { font-size: 18px; }
+  /* 毛玻璃背景（DESIGN.md blur.default-light 衍生） */
+  .nav-bar {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-hairline);
+    box-shadow: none;
+  }
+  /* H2 桌面端字号（继承 Task 1 token） */
+  .nav-bar__title { font-size: var(--font-size-h2); }   /* 20px */
   .nav-bar__actions { display: flex; }
 }
 </style>
